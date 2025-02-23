@@ -13,11 +13,11 @@
     "windows": [
       {
         "title": "pomodoro",
-        "width": 300,
-        "height": 500,
+        "width": 500,
+        "height": 600,
         "center": true,
-        "minWidth": 300,
-        "minHeight": 350,
+        "minWidth": 500,
+        "minHeight": 600,
         "fullscreen": false,
         "resizable": true,
         "transparent": false,

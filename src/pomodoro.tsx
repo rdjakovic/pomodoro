@@ -1,26 +1,45 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { RotateCcw, Settings } from "lucide-react";
+
+type TimerMode = "pomodoro" | "shortBreak" | "longBreak";
 
 const MINUTES_INC_DEC = 5;
 
 export default function PomodoroTimer() {
   const [timeLeft, setTimeLeft] = React.useState(25 * 60);
   const [isActive, setIsActive] = React.useState(true);
-  const [isPaused, setIsPaused] = React.useState(false);
-  // Change the timerHistory state initialization
   const [timerHistory, setTimerHistory] = React.useState<number[]>([0, 0, 0]);
+  const [timerMode, setTimerMode] = React.useState<TimerMode>("pomodoro");
+
+  const handleModeChange = (mode: TimerMode) => {
+    setTimerMode(mode);
+    setIsActive(false);
+    switch (mode) {
+      case "pomodoro":
+        setTimeLeft(25 * 60);
+        break;
+      case "shortBreak":
+        setTimeLeft(5 * 60);
+        break;
+      case "longBreak":
+        setTimeLeft(15 * 60);
+        break;
+    }
+  };
+
   React.useEffect(() => {
     let interval: NodeJS.Timeout;
 
-    if (isActive && !isPaused && timeLeft > 0) {
+    if (isActive && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft((time) => time - 1);
       }, 1000);
     }
 
     return () => clearInterval(interval);
-  }, [isActive, isPaused, timeLeft]);
+  }, [isActive, timeLeft]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -29,29 +48,63 @@ export default function PomodoroTimer() {
   };
 
   const progress = ((25 * 60 - timeLeft) / (25 * 60)) * 100;
-  // Modify the handleStop function
   const handleStop = () => {
     setIsActive(false);
-    setIsPaused(false);
-    // Keep only the last 2 items and add the new one
     setTimerHistory((prev) => {
       const newHistory = [timeLeft, ...prev.slice(0, 2)];
       return newHistory;
     });
-    setTimeLeft(25 * 60);
-  };
-  const handleRun = () => {
-    setIsActive(true);
-    setIsPaused(false);
   };
 
-  const handlePause = () => {
-    setIsPaused(!isPaused);
+  const handleReset = () => {
+    setIsActive(false);
+    setTimeLeft(25 * 60);
+  };
+
+  const handleRun = () => {
+    setIsActive(true);
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-900">
       <div className="flex flex-col items-center gap-8">
+        {/* Mode selection buttons */}
+        <div className="flex gap-2">
+          <Button
+            variant={timerMode === "pomodoro" ? "default" : "ghost"}
+            className={`${
+              timerMode === "pomodoro"
+                ? "bg-indigo-500 hover:bg-indigo-600 text-white"
+                : "text-zinc-400 hover:text-zinc-300"
+            }`}
+            onClick={() => handleModeChange("pomodoro")}
+          >
+            Pomodoro
+          </Button>
+          <Button
+            variant={timerMode === "shortBreak" ? "default" : "ghost"}
+            className={`${
+              timerMode === "shortBreak"
+                ? "bg-indigo-500 hover:bg-indigo-600 text-white"
+                : "text-zinc-400 hover:text-zinc-300"
+            }`}
+            onClick={() => handleModeChange("shortBreak")}
+          >
+            Short Break
+          </Button>
+          <Button
+            variant={timerMode === "longBreak" ? "default" : "ghost"}
+            className={`${
+              timerMode === "longBreak"
+                ? "bg-indigo-500 hover:bg-indigo-600 text-white"
+                : "text-zinc-400 hover:text-zinc-300"
+            }`}
+            onClick={() => handleModeChange("longBreak")}
+          >
+            Long Break
+          </Button>
+        </div>
+
         <div className="flex items-center gap-8">
           <div className="relative size-64">
             {/* Background gradient circle */}
@@ -128,27 +181,38 @@ export default function PomodoroTimer() {
           <div className="w-24 flex items-center">
             <Button
               variant="ghost"
-              className="text-zinc-400 hover:text-zinc-300 text-sm w-full"
+              className="text-zinc-400 hover:text-zinc-300 w-full flex items-center justify-center"
               onClick={() => setTimerHistory([0, 0, 0])}
             >
-              Reset
+              <RotateCcw className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
         <div className="flex gap-4">
           <Button
-            className="w-24 bg-indigo-500 hover:bg-indigo-600 text-white"
-            onClick={isActive ? handleStop : handleRun}
+            variant="ghost"
+            size="icon"
+            className="text-zinc-400 hover:text-zinc-300"
+            onClick={handleReset}
           >
-            {isActive ? "Reset" : "Start"}
+            <RotateCcw className="h-4 w-4" />
           </Button>
           <Button
             className="w-24 bg-indigo-500 hover:bg-indigo-600 text-white"
-            onClick={handlePause}
-            disabled={!isActive}
+            onClick={isActive ? handleStop : handleRun}
           >
-            {isPaused ? "Resume" : "Pause"}
+            {isActive ? "Stop" : "Start"}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-zinc-400 hover:text-zinc-300"
+            onClick={() => {
+              /* Add your settings logic here */
+            }}
+          >
+            <Settings className="h-4 w-4" />
           </Button>
         </div>
       </div>
