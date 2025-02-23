@@ -3,9 +3,10 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 export default function PomodoroTimer() {
-  const [timeLeft, setTimeLeft] = React.useState(25 * 60); // 25 minutes in seconds
+  const [timeLeft, setTimeLeft] = React.useState(25 * 60);
   const [isActive, setIsActive] = React.useState(true);
   const [isPaused, setIsPaused] = React.useState(false);
+  const [timerHistory, setTimerHistory] = React.useState<number[]>([]);
 
   React.useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -30,7 +31,9 @@ export default function PomodoroTimer() {
   const handleStop = () => {
     setIsActive(false);
     setIsPaused(false);
-    setTimeLeft(25 * 60); // Reset to 25 minutes
+    // Add current time to history before reset
+    setTimerHistory((prev) => [timeLeft, ...prev.slice(0, 2)]);
+    setTimeLeft(25 * 60);
   };
 
   const handleRun = () => {
@@ -71,6 +74,14 @@ export default function PomodoroTimer() {
               {formatTime(timeLeft)}
             </span>
           </div>
+        </div>
+
+        <div className="flex flex-col items-center gap-2">
+          {timerHistory.map((time, index) => (
+            <div key={index} className="text-zinc-400 text-lg font-medium">
+              {formatTime(time) + `.${String(time % 100).padStart(2, "0")}`}
+            </div>
+          ))}
         </div>
 
         <div className="flex gap-4">
