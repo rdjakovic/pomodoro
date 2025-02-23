@@ -3,35 +3,47 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { RotateCcw, Settings } from "lucide-react";
 import SettingsComponent from "@/components/Settings";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 type TimerMode = "pomodoro" | "shortBreak" | "longBreak";
 
 const MINUTES_INC_DEC = 5;
 
+const DEFAULT_SETTINGS = {
+  pomodoro: 25,
+  shortBreak: 5,
+  longBreak: 15,
+};
+
 export default function PomodoroTimer() {
-  const [timeLeft, setTimeLeft] = React.useState(25 * 60);
-  const [isActive, setIsActive] = React.useState(true);
-  const [timerHistory, setTimerHistory] = React.useState<number[]>([0, 0, 0]);
+  const [timerSettings, setTimerSettings] = useLocalStorage(
+    "pomodoroSettings",
+    DEFAULT_SETTINGS
+  );
   const [timerMode, setTimerMode] = React.useState<TimerMode>("pomodoro");
-  // Add state to track total time for current mode
-  const [totalTime, setTotalTime] = React.useState(25 * 60);
+  const [isActive, setIsActive] = React.useState(false);
+  const [timeLeft, setTimeLeft] = React.useState(timerSettings.pomodoro * 60);
+  const [totalTime, setTotalTime] = React.useState(timerSettings.pomodoro * 60);
+  const [timerHistory, setTimerHistory] = useLocalStorage(
+    "pomodoroHistory",
+    [0, 0, 0]
+  );
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
 
   const handleModeChange = (mode: TimerMode) => {
     setTimerMode(mode);
     setIsActive(false);
-    let newTime: number;
-
-    const modeNewTimes = {
-      pomodoro: 25 * 60,
-      shortBreak: 5 * 60,
-      longBreak: 15 * 60,
-    };
-
-    newTime = modeNewTimes[mode] || modeNewTimes.pomodoro;
-
+    const newTime = timerSettings[mode] * 60;
     setTimeLeft(newTime);
-    setTotalTime(newTime); // Update total time when mode changes
+    setTotalTime(newTime);
+  };
+
+  const handleSettingsApply = (newSettings: typeof DEFAULT_SETTINGS) => {
+    setTimerSettings(newSettings);
+    // Update current timer if needed
+    const newTime = newSettings[timerMode] * 60;
+    setTimeLeft(newTime);
+    setTotalTime(newTime);
   };
 
   React.useEffect(() => {
@@ -231,6 +243,8 @@ export default function PomodoroTimer() {
       <SettingsComponent
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
+        initialValues={timerSettings}
+        onApply={handleSettingsApply}
       />
     </>
   );

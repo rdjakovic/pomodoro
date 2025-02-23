@@ -1,14 +1,36 @@
-import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
 interface SettingsProps {
   isOpen: boolean;
   onClose: () => void;
+  initialValues: { pomodoro: number; shortBreak: number; longBreak: number };
+  onApply: (newSettings: {
+    pomodoro: number;
+    shortBreak: number;
+    longBreak: number;
+  }) => void;
 }
 
-export default function Settings({ isOpen, onClose }: SettingsProps) {
+export default function Settings({
+  isOpen,
+  onClose,
+  initialValues,
+  onApply,
+}: SettingsProps) {
   if (!isOpen) return null;
+
+  const handleApply = () => {
+    // Get values from inputs and pass them to onApply
+    // You'll need to add refs or state to track input values
+    const newSettings = {
+      pomodoro: 25, // Replace with actual input value
+      shortBreak: 5, // Replace with actual input value
+      longBreak: 15, // Replace with actual input value
+    };
+    onApply(newSettings);
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -34,7 +56,7 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
                 <input
                   type="number"
                   className="w-full bg-zinc-700 border border-zinc-600 rounded px-3 py-2 text-white"
-                  defaultValue="25"
+                  defaultValue={initialValues.pomodoro}
                 />
               </div>
               <div className="space-y-2">
@@ -42,7 +64,7 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
                 <input
                   type="number"
                   className="w-full bg-zinc-700 border border-zinc-600 rounded px-3 py-2 text-white"
-                  defaultValue="5"
+                  defaultValue={initialValues.shortBreak}
                 />
               </div>
               <div className="space-y-2">
@@ -50,7 +72,7 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
                 <input
                   type="number"
                   className="w-full bg-zinc-700 border border-zinc-600 rounded px-3 py-2 text-white"
-                  defaultValue="15"
+                  defaultValue={initialValues.longBreak}
                 />
               </div>
             </div>
@@ -59,7 +81,7 @@ export default function Settings({ isOpen, onClose }: SettingsProps) {
           <div className="pt-6 border-t border-zinc-700">
             <Button
               className="w-full bg-indigo-500 hover:bg-indigo-600 text-white"
-              onClick={onClose}
+              onClick={handleApply}
             >
               Apply
             </Button>
