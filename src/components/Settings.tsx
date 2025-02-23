@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface SettingsProps {
   isOpen: boolean;
@@ -18,17 +19,28 @@ export default function Settings({
   initialValues,
   onApply,
 }: SettingsProps) {
+  const [values, setValues] = useState(initialValues);
+
+  // Update local state when initialValues change
+  useEffect(() => {
+    setValues(initialValues);
+  }, [initialValues]);
+
   if (!isOpen) return null;
 
+  const handleInputChange = (
+    field: "pomodoro" | "shortBreak" | "longBreak",
+    value: string
+  ) => {
+    const numValue = parseInt(value) || 0;
+    setValues((prev) => ({
+      ...prev,
+      [field]: numValue,
+    }));
+  };
+
   const handleApply = () => {
-    // Get values from inputs and pass them to onApply
-    // You'll need to add refs or state to track input values
-    const newSettings = {
-      pomodoro: 25, // Replace with actual input value
-      shortBreak: 5, // Replace with actual input value
-      longBreak: 15, // Replace with actual input value
-    };
-    onApply(newSettings);
+    onApply(values);
     onClose();
   };
 
@@ -55,24 +67,39 @@ export default function Settings({
                 <label className="text-sm text-zinc-400">Pomodoro</label>
                 <input
                   type="number"
+                  min="1"
+                  max="60"
                   className="w-full bg-zinc-700 border border-zinc-600 rounded px-3 py-2 text-white"
-                  defaultValue={initialValues.pomodoro}
+                  value={values.pomodoro}
+                  onChange={(e) =>
+                    handleInputChange("pomodoro", e.target.value)
+                  }
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm text-zinc-400">Short Break</label>
                 <input
                   type="number"
+                  min="1"
+                  max="60"
                   className="w-full bg-zinc-700 border border-zinc-600 rounded px-3 py-2 text-white"
-                  defaultValue={initialValues.shortBreak}
+                  value={values.shortBreak}
+                  onChange={(e) =>
+                    handleInputChange("shortBreak", e.target.value)
+                  }
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm text-zinc-400">Long Break</label>
                 <input
                   type="number"
+                  min="1"
+                  max="60"
                   className="w-full bg-zinc-700 border border-zinc-600 rounded px-3 py-2 text-white"
-                  defaultValue={initialValues.longBreak}
+                  value={values.longBreak}
+                  onChange={(e) =>
+                    handleInputChange("longBreak", e.target.value)
+                  }
                 />
               </div>
             </div>
