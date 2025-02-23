@@ -47,13 +47,7 @@ export default function PomodoroTimer() {
       <div className="flex flex-col items-center gap-8">
         <div className="relative size-64">
           {/* Background gradient circle */}
-          <div
-            className="absolute inset-0 rounded-full"
-            style={{
-              background:
-                "conic-gradient(from 270deg, rgba(38, 38, 38, 0.4) 0%, rgba(38, 38, 38, 0.1) 100%)",
-            }}
-          />
+          <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_270deg,rgba(38,38,38,0.4)_0%,rgba(38,38,38,0.1)_100%)]" />
 
           {/* Progress circle */}
           <motion.div
@@ -84,7 +78,7 @@ export default function PomodoroTimer() {
             className="w-24 bg-indigo-500 hover:bg-indigo-600 text-white"
             onClick={isActive ? handleStop : handleRun}
           >
-            {isActive ? "Stop" : "Run"}
+            {isActive ? "Reset" : "Run"}
           </Button>
           <Button
             className="w-24 bg-indigo-500 hover:bg-indigo-600 text-white"
