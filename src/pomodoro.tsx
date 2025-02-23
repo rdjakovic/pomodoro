@@ -8,8 +8,8 @@ export default function PomodoroTimer() {
   const [timeLeft, setTimeLeft] = React.useState(25 * 60);
   const [isActive, setIsActive] = React.useState(true);
   const [isPaused, setIsPaused] = React.useState(false);
-  const [timerHistory, setTimerHistory] = React.useState<number[]>([]);
-
+  // Change the timerHistory state initialization
+  const [timerHistory, setTimerHistory] = React.useState<number[]>([0, 0, 0]);
   React.useEffect(() => {
     let interval: NodeJS.Timeout;
 
@@ -106,7 +106,7 @@ export default function PomodoroTimer() {
         <div className="flex flex-col items-center">
           {timerHistory.map((time, index) => (
             <motion.div
-              key={time}
+              key={`${time}-${index}`} // Added index to key to handle duplicate zeros
               className={`text-lg font-medium ${
                 index === 0 ? "text-green-400" : "text-zinc-400"
               }`}
