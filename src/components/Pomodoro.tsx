@@ -99,7 +99,7 @@ export default function PomodoroTimer() {
   };
 
   return (
-    <TooltipProvider delayDuration={500}>
+    <TooltipProvider delayDuration={600}>
       <div className="flex min-h-screen items-center justify-center bg-zinc-900">
         <div className="flex flex-col items-center gap-8">
           {/* Mode selection buttons */}
