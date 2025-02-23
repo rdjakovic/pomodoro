@@ -103,25 +103,37 @@ export default function PomodoroTimer() {
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-center">
-          {timerHistory.map((time, index) => (
-            <motion.div
-              key={`${time}-${index}`} // Added index to key to handle duplicate zeros
-              className={`text-lg font-medium ${
-                index === 0 ? "text-green-400" : "text-zinc-400"
-              }`}
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                type: "spring",
-                stiffness: 500,
-                damping: 30,
-                mass: 1,
-              }}
+        <div className="flex justify-between w-full max-w-md px-4">
+          <div className="w-24 flex items-center"></div>
+          <div className="flex flex-col items-center">
+            {timerHistory.map((time, index) => (
+              <motion.div
+                key={`${time}-${index}`}
+                className={`text-lg font-medium ${
+                  index === 0 ? "text-green-400" : "text-zinc-400"
+                }`}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 500,
+                  damping: 30,
+                  mass: 1,
+                }}
+              >
+                {formatTime(time) + `.${String(time % 100).padStart(2, "0")}`}
+              </motion.div>
+            ))}
+          </div>
+          <div className="w-24 flex items-center">
+            <Button
+              variant="ghost"
+              className="text-zinc-400 hover:text-zinc-300 text-sm w-full"
+              onClick={() => setTimerHistory([0, 0, 0])}
             >
-              {formatTime(time) + `.${String(time % 100).padStart(2, "0")}`}
-            </motion.div>
-          ))}
+              Reset
+            </Button>
+          </div>
         </div>
 
         <div className="flex gap-4">
@@ -129,7 +141,7 @@ export default function PomodoroTimer() {
             className="w-24 bg-indigo-500 hover:bg-indigo-600 text-white"
             onClick={isActive ? handleStop : handleRun}
           >
-            {isActive ? "Reset" : "Run"}
+            {isActive ? "Reset" : "Start"}
           </Button>
           <Button
             className="w-24 bg-indigo-500 hover:bg-indigo-600 text-white"
