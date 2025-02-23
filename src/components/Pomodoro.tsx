@@ -22,6 +22,13 @@ const DEFAULT_SETTINGS: TimerSettings = {
   longBreak: 15,
 };
 
+const getTimeAdjustment = (currentTime: number) => {
+  // Convert current time from seconds to minutes
+  const timeLeftMinutes = Math.floor(currentTime / 60);
+  // Return adjustment in seconds
+  return timeLeftMinutes > 10 ? MINUTES_INC_DEC * 60 : 60;
+};
+
 export default function PomodoroTimer() {
   const [timerSettings, setTimerSettings] = useLocalStorage(
     "pomodoroSettings",
@@ -82,12 +89,7 @@ export default function PomodoroTimer() {
 
   const handleReset = () => {
     setIsActive(false);
-    const newTime =
-      timerMode === "pomodoro"
-        ? 25 * 60
-        : timerMode === "shortBreak"
-        ? 5 * 60
-        : 15 * 60;
+    const newTime = timerSettings[timerMode] * 60;
     setTimeLeft(newTime);
     setTotalTime(newTime);
   };
@@ -186,16 +188,21 @@ export default function PomodoroTimer() {
                         variant="ghost"
                         className="text-zinc-400 hover:text-zinc-300 text-2xl font-bold h-8 w-8 p-0"
                         onClick={() =>
-                          setTimeLeft((prev) =>
-                            Math.max(60, prev - MINUTES_INC_DEC * 60)
-                          )
+                          setTimeLeft((prev) => {
+                            const adjustment = getTimeAdjustment(prev);
+                            return Math.max(60, prev - adjustment);
+                          })
                         }
                       >
                         -
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Decrease time by {MINUTES_INC_DEC} minutes</p>
+                      <p>
+                        Decrease time by {timeLeft > 600 ? MINUTES_INC_DEC : 1}{" "}
+                        minute
+                        {timeLeft > 600 ? "s" : ""}
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                   <span className="text-5xl font-medium text-white">
@@ -207,16 +214,21 @@ export default function PomodoroTimer() {
                         variant="ghost"
                         className="text-zinc-400 hover:text-zinc-300 text-2xl font-bold h-8 w-8 p-0"
                         onClick={() =>
-                          setTimeLeft((prev) =>
-                            Math.min(3600, prev + MINUTES_INC_DEC * 60)
-                          )
+                          setTimeLeft((prev) => {
+                            const adjustment = getTimeAdjustment(prev);
+                            return Math.min(3600, prev + adjustment);
+                          })
                         }
                       >
                         +
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Increase time by {MINUTES_INC_DEC} minutes</p>
+                      <p>
+                        Increase time by {timeLeft > 600 ? MINUTES_INC_DEC : 1}{" "}
+                        minute
+                        {timeLeft > 600 ? "s" : ""}
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                 </div>
