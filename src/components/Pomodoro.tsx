@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { RotateCcw, Settings } from "lucide-react";
 import SettingsComponent from "@/components/Settings";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { TimerSettings } from "@/types/timer";
 
 type TimerMode = "pomodoro" | "shortBreak" | "longBreak";
 
 const MINUTES_INC_DEC = 5;
 
-const DEFAULT_SETTINGS = {
+const DEFAULT_SETTINGS: TimerSettings = {
   pomodoro: 25,
   shortBreak: 5,
   longBreak: 15,

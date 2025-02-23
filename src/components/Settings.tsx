@@ -1,16 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { TimerSettings } from "@/types/timer";
 
 interface SettingsProps {
   isOpen: boolean;
   onClose: () => void;
-  initialValues: { pomodoro: number; shortBreak: number; longBreak: number };
-  onApply: (newSettings: {
-    pomodoro: number;
-    shortBreak: number;
-    longBreak: number;
-  }) => void;
+  initialValues: TimerSettings;
+  onApply: (newSettings: TimerSettings) => void;
 }
 
 export default function Settings({
