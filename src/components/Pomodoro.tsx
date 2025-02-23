@@ -5,6 +5,12 @@ import { RotateCcw, Settings } from "lucide-react";
 import SettingsComponent from "@/components/Settings";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { TimerSettings } from "@/types/timer";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type TimerMode = "pomodoro" | "shortBreak" | "longBreak";
 
@@ -91,44 +97,65 @@ export default function PomodoroTimer() {
   };
 
   return (
-    <>
+    <TooltipProvider delayDuration={500}>
       <div className="flex min-h-screen items-center justify-center bg-zinc-900">
         <div className="flex flex-col items-center gap-8">
           {/* Mode selection buttons */}
           <div className="flex gap-2">
-            <Button
-              variant={timerMode === "pomodoro" ? "default" : "ghost"}
-              className={`${
-                timerMode === "pomodoro"
-                  ? "bg-indigo-500 hover:bg-indigo-600 text-white"
-                  : "text-zinc-400 hover:text-zinc-300"
-              }`}
-              onClick={() => handleModeChange("pomodoro")}
-            >
-              Pomodoro
-            </Button>
-            <Button
-              variant={timerMode === "shortBreak" ? "default" : "ghost"}
-              className={`${
-                timerMode === "shortBreak"
-                  ? "bg-indigo-500 hover:bg-indigo-600 text-white"
-                  : "text-zinc-400 hover:text-zinc-300"
-              }`}
-              onClick={() => handleModeChange("shortBreak")}
-            >
-              Short Break
-            </Button>
-            <Button
-              variant={timerMode === "longBreak" ? "default" : "ghost"}
-              className={`${
-                timerMode === "longBreak"
-                  ? "bg-indigo-500 hover:bg-indigo-600 text-white"
-                  : "text-zinc-400 hover:text-zinc-300"
-              }`}
-              onClick={() => handleModeChange("longBreak")}
-            >
-              Long Break
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={timerMode === "pomodoro" ? "default" : "ghost"}
+                  className={`${
+                    timerMode === "pomodoro"
+                      ? "bg-indigo-500 hover:bg-indigo-600 text-white"
+                      : "text-zinc-400 hover:text-zinc-300"
+                  }`}
+                  onClick={() => handleModeChange("pomodoro")}
+                >
+                  Pomodoro
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Focus session ({timerSettings.pomodoro} minutes)</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={timerMode === "shortBreak" ? "default" : "ghost"}
+                  className={`${
+                    timerMode === "shortBreak"
+                      ? "bg-indigo-500 hover:bg-indigo-600 text-white"
+                      : "text-zinc-400 hover:text-zinc-300"
+                  }`}
+                  onClick={() => handleModeChange("shortBreak")}
+                >
+                  Short Break
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Short break ({timerSettings.shortBreak} minutes)</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={timerMode === "longBreak" ? "default" : "ghost"}
+                  className={`${
+                    timerMode === "longBreak"
+                      ? "bg-indigo-500 hover:bg-indigo-600 text-white"
+                      : "text-zinc-400 hover:text-zinc-300"
+                  }`}
+                  onClick={() => handleModeChange("longBreak")}
+                >
+                  Long Break
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Long break ({timerSettings.longBreak} minutes)</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
 
           <div className="flex items-center gap-8">
@@ -153,31 +180,45 @@ export default function PomodoroTimer() {
               {/* Center content */}
               <div className="absolute inset-2 flex items-center justify-center rounded-full bg-zinc-900">
                 <div className="flex items-center gap-4">
-                  <Button
-                    variant="ghost"
-                    className="text-zinc-400 hover:text-zinc-300 text-2xl font-bold h-8 w-8 p-0"
-                    onClick={() =>
-                      setTimeLeft((prev) =>
-                        Math.max(60, prev - MINUTES_INC_DEC * 60)
-                      )
-                    }
-                  >
-                    -
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="text-zinc-400 hover:text-zinc-300 text-2xl font-bold h-8 w-8 p-0"
+                        onClick={() =>
+                          setTimeLeft((prev) =>
+                            Math.max(60, prev - MINUTES_INC_DEC * 60)
+                          )
+                        }
+                      >
+                        -
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Decrease time by {MINUTES_INC_DEC} minutes</p>
+                    </TooltipContent>
+                  </Tooltip>
                   <span className="text-5xl font-medium text-white">
                     {formatTime(timeLeft)}
                   </span>
-                  <Button
-                    variant="ghost"
-                    className="text-zinc-400 hover:text-zinc-300 text-2xl font-bold h-8 w-8 p-0"
-                    onClick={() =>
-                      setTimeLeft((prev) =>
-                        Math.min(3600, prev + MINUTES_INC_DEC * 60)
-                      )
-                    }
-                  >
-                    +
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="text-zinc-400 hover:text-zinc-300 text-2xl font-bold h-8 w-8 p-0"
+                        onClick={() =>
+                          setTimeLeft((prev) =>
+                            Math.min(3600, prev + MINUTES_INC_DEC * 60)
+                          )
+                        }
+                      >
+                        +
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Increase time by {MINUTES_INC_DEC} minutes</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
             </div>
@@ -205,39 +246,67 @@ export default function PomodoroTimer() {
               ))}
             </div>
             <div className="w-24 flex items-center">
-              <Button
-                variant="ghost"
-                className="text-zinc-400 hover:text-zinc-300 w-full flex items-center justify-center"
-                onClick={() => setTimerHistory([0, 0, 0])}
-              >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="text-zinc-400 hover:text-zinc-300 w-full flex items-center justify-center"
+                    onClick={() => setTimerHistory([0, 0, 0])}
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Clear timer history</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
           </div>
 
           <div className="flex gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-zinc-400 hover:text-zinc-300"
-              onClick={handleReset}
-            >
-              <RotateCcw className="h-4 w-4" />
-            </Button>
-            <Button
-              className="w-24 bg-indigo-500 hover:bg-indigo-600 text-white"
-              onClick={isActive ? handleStop : handleRun}
-            >
-              {isActive ? "Stop" : "Start"}
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-zinc-400 hover:text-zinc-300"
-              onClick={() => setIsSettingsOpen(true)}
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-zinc-400 hover:text-zinc-300"
+                  onClick={handleReset}
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Reset timer</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  className="w-24 bg-indigo-500 hover:bg-indigo-600 text-white"
+                  onClick={isActive ? handleStop : handleRun}
+                >
+                  {isActive ? "Stop" : "Start"}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{isActive ? "Stop the timer" : "Start the timer"}</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-zinc-400 hover:text-zinc-300"
+                  onClick={() => setIsSettingsOpen(true)}
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Open settings</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
       </div>
@@ -247,6 +316,6 @@ export default function PomodoroTimer() {
         initialValues={timerSettings}
         onApply={handleSettingsApply}
       />
-    </>
+    </TooltipProvider>
   );
 }
