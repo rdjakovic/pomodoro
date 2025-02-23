@@ -27,15 +27,17 @@ export default function PomodoroTimer() {
   };
 
   const progress = ((25 * 60 - timeLeft) / (25 * 60)) * 100;
-
+  // Modify the handleStop function
   const handleStop = () => {
     setIsActive(false);
     setIsPaused(false);
-    // Add current time to history before reset
-    setTimerHistory((prev) => [timeLeft, ...prev.slice(0, 2)]);
+    // Keep only the last 2 items and add the new one
+    setTimerHistory((prev) => {
+      const newHistory = [timeLeft, ...prev.slice(0, 2)];
+      return newHistory;
+    });
     setTimeLeft(25 * 60);
   };
-
   const handleRun = () => {
     setIsActive(true);
     setIsPaused(false);
@@ -76,11 +78,24 @@ export default function PomodoroTimer() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center">
           {timerHistory.map((time, index) => (
-            <div key={index} className="text-zinc-400 text-lg font-medium">
+            <motion.div
+              key={time}
+              className={`text-lg font-medium ${
+                index === 0 ? "text-green-400" : "text-zinc-400"
+              }`}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                type: "spring",
+                stiffness: 500,
+                damping: 30,
+                mass: 1,
+              }}
+            >
               {formatTime(time) + `.${String(time % 100).padStart(2, "0")}`}
-            </div>
+            </motion.div>
           ))}
         </div>
 
