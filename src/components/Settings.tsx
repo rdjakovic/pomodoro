@@ -124,7 +124,7 @@ export default function Settings({
             </h3>
             <div className="flex items-center justify-between">
               <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                Theme
+                Theme light/dark
               </span>
               <Button
                 variant="ghost"
