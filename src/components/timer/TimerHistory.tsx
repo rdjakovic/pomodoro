@@ -14,7 +14,11 @@ interface TimerHistoryProps {
   formatTime: (seconds: number) => string;
 }
 
-export function TimerHistory({ timerHistory, setTimerHistory, formatTime }: TimerHistoryProps) {
+export function TimerHistory({
+  timerHistory,
+  setTimerHistory,
+  formatTime,
+}: TimerHistoryProps) {
   return (
     <div className="flex justify-between w-full max-w-md px-4">
       <div className="w-24 flex items-center"></div>
@@ -23,7 +27,9 @@ export function TimerHistory({ timerHistory, setTimerHistory, formatTime }: Time
           <motion.div
             key={`${time}-${index}`}
             className={`text-lg font-medium ${
-              index === 0 ? "text-green-400" : "text-zinc-400"
+              index === 0
+                ? "text-green-500 dark:text-green-400"
+                : "text-zinc-500 dark:text-zinc-400"
             }`}
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -43,7 +49,7 @@ export function TimerHistory({ timerHistory, setTimerHistory, formatTime }: Time
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
-              className="text-zinc-400 hover:text-zinc-300 w-full flex items-center justify-center"
+              className="text-zinc-400 hover:text-zinc-500 dark:text-zinc-400 dark:hover:text-zinc-300 w-full flex items-center justify-center"
               onClick={() => setTimerHistory([0, 0, 0])}
             >
               <RotateCcw className="h-4 w-4" />

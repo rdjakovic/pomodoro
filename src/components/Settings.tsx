@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Sun, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { TimerSettings } from "@/types/timer";
 
@@ -18,7 +18,6 @@ export default function Settings({
 }: SettingsProps) {
   const [values, setValues] = useState(initialValues);
 
-  // Update local state when initialValues change
   useEffect(() => {
     setValues(initialValues);
   }, [initialValues]);
@@ -36,20 +35,29 @@ export default function Settings({
     }));
   };
 
+  const toggleTheme = () => {
+    setValues((prev) => ({
+      ...prev,
+      theme: prev.theme === "light" ? "dark" : "light",
+    }));
+  };
+
   const handleApply = () => {
     onApply(values);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-zinc-800 rounded-lg p-6 w-96 relative">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-zinc-800 rounded-lg p-6 w-96 relative">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-white">Settings</h2>
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">
+            Settings
+          </h2>
           <Button
             variant="ghost"
             size="icon"
-            className="text-zinc-400 hover:text-zinc-300"
+            className="text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300"
             onClick={onClose}
           >
             <X className="h-4 w-4" />
@@ -58,15 +66,19 @@ export default function Settings({
 
         <div className="space-y-6">
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-white">Time (minutes)</h3>
+            <h3 className="text-lg font-medium text-zinc-900 dark:text-white">
+              Time (minutes)
+            </h3>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <label className="text-sm text-zinc-400">Pomodoro</label>
+                <label className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Pomodoro
+                </label>
                 <input
                   type="number"
                   min="1"
                   max="60"
-                  className="w-full bg-zinc-700 border border-zinc-600 rounded px-3 py-2 text-white"
+                  className="w-full bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded px-3 py-2 text-zinc-900 dark:text-white"
                   value={values.pomodoro}
                   onChange={(e) =>
                     handleInputChange("pomodoro", e.target.value)
@@ -74,12 +86,14 @@ export default function Settings({
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-zinc-400">Short Break</label>
+                <label className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Short Break
+                </label>
                 <input
                   type="number"
                   min="1"
                   max="60"
-                  className="w-full bg-zinc-700 border border-zinc-600 rounded px-3 py-2 text-white"
+                  className="w-full bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded px-3 py-2 text-zinc-900 dark:text-white"
                   value={values.shortBreak}
                   onChange={(e) =>
                     handleInputChange("shortBreak", e.target.value)
@@ -87,12 +101,14 @@ export default function Settings({
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-zinc-400">Long Break</label>
+                <label className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Long Break
+                </label>
                 <input
                   type="number"
                   min="1"
                   max="60"
-                  className="w-full bg-zinc-700 border border-zinc-600 rounded px-3 py-2 text-white"
+                  className="w-full bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded px-3 py-2 text-zinc-900 dark:text-white"
                   value={values.longBreak}
                   onChange={(e) =>
                     handleInputChange("longBreak", e.target.value)
@@ -102,7 +118,30 @@ export default function Settings({
             </div>
           </div>
 
-          <div className="pt-6 border-t border-zinc-700">
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-zinc-900 dark:text-white">
+              Appearance
+            </h3>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                Theme
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300"
+                onClick={toggleTheme}
+              >
+                {values.theme === "light" ? (
+                  <Sun className="h-4 w-4" />
+                ) : (
+                  <Moon className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-zinc-200 dark:border-zinc-700">
             <Button
               className="w-full bg-indigo-500 hover:bg-indigo-600 text-white"
               onClick={handleApply}

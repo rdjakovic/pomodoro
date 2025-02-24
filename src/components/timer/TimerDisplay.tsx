@@ -21,12 +21,17 @@ const getTimeAdjustment = (currentTime: number) => {
   return timeLeftMinutes > 10 ? MINUTES_INC_DEC * 60 : 60;
 };
 
-export function TimerDisplay({ timeLeft, totalTime, setTimeLeft, formatTime }: TimerDisplayProps) {
+export function TimerDisplay({
+  timeLeft,
+  totalTime,
+  setTimeLeft,
+  formatTime,
+}: TimerDisplayProps) {
   const progress = ((totalTime - timeLeft) / totalTime) * 100;
 
   return (
     <div className="relative size-64">
-      <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_270deg,rgba(38,38,38,0.4)_0%,rgba(38,38,38,0.1)_100%)]" />
+      <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_270deg,rgba(38,38,38,0.4)_0%,rgba(38,38,38,0.1)_100%)] dark:bg-[conic-gradient(from_270deg,rgba(250,250,250,0.4)_0%,rgba(250,250,250,0.1)_100%)]" />
       <motion.div
         className="absolute inset-0 origin-center rounded-full"
         style={{
@@ -41,13 +46,13 @@ export function TimerDisplay({ timeLeft, totalTime, setTimeLeft, formatTime }: T
         animate={{ rotate: 270 }}
         transition={{ duration: 0.5, type: "spring" }}
       />
-      <div className="absolute inset-2 flex items-center justify-center rounded-full bg-zinc-900">
+      <div className="absolute inset-2 flex items-center justify-center rounded-full bg-white dark:bg-zinc-900">
         <div className="flex items-center gap-4">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
-                className="text-zinc-400 hover:text-zinc-300 text-2xl font-bold h-8 w-8 p-0"
+                className="text-zinc-400 hover:text-zinc-500 dark:text-zinc-400 dark:hover:text-zinc-300 text-2xl font-bold h-8 w-8 p-0"
                 onClick={() =>
                   setTimeLeft((prev) => {
                     const adjustment = getTimeAdjustment(prev);
@@ -65,14 +70,14 @@ export function TimerDisplay({ timeLeft, totalTime, setTimeLeft, formatTime }: T
               </p>
             </TooltipContent>
           </Tooltip>
-          <span className="text-5xl font-medium text-white">
+          <span className="text-5xl font-medium text-zinc-900 dark:text-white">
             {formatTime(timeLeft)}
           </span>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
-                className="text-zinc-400 hover:text-zinc-300 text-2xl font-bold h-8 w-8 p-0"
+                className="text-zinc-400 hover:text-zinc-500 dark:text-zinc-400 dark:hover:text-zinc-300 text-2xl font-bold h-8 w-8 p-0"
                 onClick={() =>
                   setTimeLeft((prev) => {
                     const adjustment = getTimeAdjustment(prev);

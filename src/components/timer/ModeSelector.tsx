@@ -45,7 +45,7 @@ export function ModeSelector({
               className={`${
                 timerMode === mode
                   ? "bg-indigo-500 hover:bg-indigo-600 text-white"
-                  : "text-zinc-400 hover:text-zinc-300"
+                  : "text-zinc-600 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
               }`}
               onClick={() => onModeChange(mode)}
             >

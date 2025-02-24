@@ -20,6 +20,7 @@ const DEFAULT_SETTINGS: TimerSettings = {
   pomodoro: 25,
   shortBreak: 5,
   longBreak: 15,
+  theme: "dark",
 };
 
 export default function PomodoroTimer() {
@@ -27,6 +28,13 @@ export default function PomodoroTimer() {
     "pomodoroSettings",
     DEFAULT_SETTINGS
   );
+
+  // Apply theme to document
+  React.useEffect(() => {
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(timerSettings.theme);
+  }, [timerSettings.theme]);
+
   const [timerMode, setTimerMode] = React.useState<TimerMode>("pomodoro");
   const [isActive, setIsActive] = React.useState(false);
   const [timeLeft, setTimeLeft] = React.useState(timerSettings.pomodoro * 60);
@@ -91,7 +99,7 @@ export default function PomodoroTimer() {
 
   return (
     <TooltipProvider delayDuration={600}>
-      <div className="flex min-h-screen items-center justify-center bg-zinc-900">
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-zinc-900">
         <div className="flex flex-col items-center gap-8">
           <ModeSelector
             timerMode={timerMode}
@@ -118,7 +126,7 @@ export default function PomodoroTimer() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-zinc-400 hover:text-zinc-300"
+                  className="text-zinc-400 hover:text-zinc-500 dark:text-zinc-400 dark:hover:text-zinc-300"
                   onClick={handleReset}
                 >
                   <RotateCcw className="h-4 w-4" />
@@ -146,7 +154,7 @@ export default function PomodoroTimer() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-zinc-400 hover:text-zinc-300"
+                  className="text-zinc-400 hover:text-zinc-500 dark:text-zinc-400 dark:hover:text-zinc-300"
                   onClick={() => setIsSettingsOpen(true)}
                 >
                   <Settings className="h-4 w-4" />
