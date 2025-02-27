@@ -53,7 +53,7 @@ export default function PomodoroTimer() {
     setTotalTime(newTime);
   };
 
-  const handleSettingsApply = (newSettings: typeof DEFAULT_SETTINGS) => {
+  const handleSettingsApply = (newSettings: TimerSettings) => {
     setTimerSettings(newSettings);
     const newTime = newSettings[timerMode] * 60;
     setTimeLeft(newTime);
