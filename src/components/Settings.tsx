@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { X, Sun, Moon } from "lucide-react";
+import { X, Sun, Moon, Volume2, VolumeX } from "lucide-react";
 import { useState, useEffect } from "react";
 import { TimerSettings } from "@/types/timer";
 
@@ -39,6 +39,13 @@ export default function Settings({
     setValues((prev) => ({
       ...prev,
       theme: prev.theme === "light" ? "dark" : "light",
+    }));
+  };
+
+  const toggleSound = () => {
+    setValues((prev) => ({
+      ...prev,
+      soundEnabled: !prev.soundEnabled,
     }));
   };
 
@@ -136,6 +143,29 @@ export default function Settings({
                   <Sun className="h-4 w-4" />
                 ) : (
                   <Moon className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-zinc-900 dark:text-white">
+              Sound
+            </h3>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                Timer completion sound
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300"
+                onClick={toggleSound}
+              >
+                {values.soundEnabled ? (
+                  <Volume2 className="h-4 w-4" />
+                ) : (
+                  <VolumeX className="h-4 w-4" />
                 )}
               </Button>
             </div>

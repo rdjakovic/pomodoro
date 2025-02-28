@@ -13,6 +13,7 @@ import {
 import { TimerDisplay } from "./timer/TimerDisplay";
 import { TimerHistory } from "./timer/TimerHistory";
 import { ModeSelector } from "./timer/ModeSelector";
+import timerDoneSound from "@/assets/timer-done.mp3";
 
 type TimerMode = "pomodoro" | "shortBreak" | "longBreak";
 
@@ -21,6 +22,7 @@ const DEFAULT_SETTINGS: TimerSettings = {
   shortBreak: 5,
   longBreak: 15,
   theme: "dark",
+  soundEnabled: true,
 };
 
 export default function PomodoroTimer() {
@@ -28,6 +30,12 @@ export default function PomodoroTimer() {
     "pomodoroSettings",
     DEFAULT_SETTINGS
   );
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+
+  // Initialize audio element
+  React.useEffect(() => {
+    audioRef.current = new Audio(timerDoneSound);
+  }, []);
 
   // Apply theme to document
   React.useEffect(() => {
@@ -44,6 +52,15 @@ export default function PomodoroTimer() {
     [0, 0, 0]
   );
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+
+  const playNotificationSound = () => {
+    if (audioRef.current && timerSettings.soundEnabled) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch((error) => {
+        console.warn("Audio playback failed:", error);
+      });
+    }
+  };
 
   const handleModeChange = (mode: TimerMode) => {
     setTimerMode(mode);
@@ -65,7 +82,15 @@ export default function PomodoroTimer() {
 
     if (isActive && timeLeft > 0) {
       interval = setInterval(() => {
-        setTimeLeft((time) => time - 1);
+        setTimeLeft((time) => {
+          if (time <= 1) {
+            // Timer is done
+            playNotificationSound();
+            setIsActive(false);
+            return 0;
+          }
+          return time - 1;
+        });
       }, 1000);
     }
 
