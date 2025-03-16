@@ -82,6 +82,8 @@ export default function Settings({
                   Pomodoro
                 </label>
                 <input
+                  title="Pomodoro Duration"
+                  placeholder="Enter pomodoro duration"
                   type="number"
                   min="1"
                   max="60"
@@ -97,6 +99,8 @@ export default function Settings({
                   Short Break
                 </label>
                 <input
+                  title="Short Break Duration"
+                  placeholder="Enter short break duration"
                   type="number"
                   min="1"
                   max="60"
@@ -112,6 +116,8 @@ export default function Settings({
                   Long Break
                 </label>
                 <input
+                  title="Long Break Duration"
+                  placeholder="Enter long break duration"
                   type="number"
                   min="1"
                   max="60"
