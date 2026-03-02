@@ -14,7 +14,12 @@
       "Bash(npm run build:*)",
       "Bash(npx vite build:*)",
       "Bash(npx tsc --noEmit)",
-      "Bash(npm run test -- --run)"
+      "Bash(npm run test -- --run)",
+      "Bash(cargo clean)",
+      "Bash(rustup update)",
+      "Bash(cargo build)",
+      "Bash(where link.exe)",
+      "Bash(where link)"
     ]
   }
 }
