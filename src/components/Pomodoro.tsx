@@ -1,22 +1,20 @@
 import * as React from "react";
-import { Button } from "@/components/ui/button";
-import { Settings, RotateCcw } from "lucide-react";
-import SettingsComponent from "@/components/Settings";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useManualTimer } from "@/hooks/useManualTimer";
 import { useSequenceTimer } from "@/hooks/useSequenceTimer";
 import { TimerSettings, Sequence, SequenceSettings } from "@/types/timer";
+import { formatTime } from "@/lib/format";
 import {
-  Tooltip,
-  TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
 } from "@/components/ui/tooltip";
+import SettingsComponent from "@/components/Settings";
 import { TimerDisplay } from "./timer/TimerDisplay";
 import { TimerHistory } from "./timer/TimerHistory";
 import { ModeSelector } from "./timer/ModeSelector";
+import { SequenceToggle } from "./timer/SequenceToggle";
+import { TimerControls } from "./timer/TimerControls";
+import { SequenceInfo } from "./timer/SequenceInfo";
 import timerDoneSound from "@/assets/timer-done.mp3";
-
-type TimerMode = "pomodoro" | "shortBreak" | "longBreak";
 
 const PHASE_LABELS: Record<string, string> = {
   pomodoro: "Pomodoro",
@@ -45,62 +43,32 @@ export default function PomodoroTimer() {
     "pomodoroSettings",
     DEFAULT_SETTINGS
   );
+  const [timerHistory, setTimerHistory] = useLocalStorage("pomodoroHistory", [0, 0, 0]);
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
-  // Initialize audio element for manual mode
+  // Initialize audio
   React.useEffect(() => {
     audioRef.current = new Audio(timerDoneSound);
   }, []);
 
-  // Apply theme to document
+  // Apply theme
   React.useEffect(() => {
     document.documentElement.classList.remove("light", "dark");
     document.documentElement.classList.add(timerSettings.theme);
   }, [timerSettings.theme]);
 
-  // --- Manual mode state ---
-  const [timerMode, setTimerMode] = React.useState<TimerMode>("pomodoro");
-  const [isActive, setIsActive] = React.useState(false);
-  const [timeLeft, setTimeLeft] = React.useState(timerSettings.pomodoro * 60);
-  const [totalTime, setTotalTime] = React.useState(timerSettings.pomodoro * 60);
-  const [timerHistory, setTimerHistory] = useLocalStorage("pomodoroHistory", [0, 0, 0]);
-  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
-
-  // --- Sequence mode state ---
+  // Sequence mode state
   const sequenceSettings = timerSettings.sequenceSettings ?? DEFAULT_SEQUENCE_SETTINGS;
   const isSequenceMode = sequenceSettings.sequenceModeEnabled;
   const activeSequence: Sequence | null =
     sequenceSettings.sequences.find((s) => s.id === sequenceSettings.activeSequenceId) ?? null;
-
-  const sequenceTimer = useSequenceTimer(
-    activeSequence,
-    sequenceSettings.totalSequenceTime,
-    timerSettings.soundEnabled ?? true
-  );
-
   const activeSequenceIndex = activeSequence
     ? sequenceSettings.sequences.findIndex((s) => s.id === activeSequence.id) + 1
     : null;
 
-  // --- Sequence mode toggle ---
-  const toggleSequenceMode = () => {
-    if (!activeSequence) return; // can't enable without a sequence
-    setTimerSettings((prev) => ({
-      ...prev,
-      sequenceSettings: {
-        ...(prev.sequenceSettings ?? DEFAULT_SEQUENCE_SETTINGS),
-        sequenceModeEnabled: !isSequenceMode,
-      },
-    }));
-    // Stop whichever mode is running
-    if (isSequenceMode) {
-      sequenceTimer.reset();
-    } else {
-      setIsActive(false);
-    }
-  };
-
-  // --- Manual mode timer ---
+  // Manual timer
   const playNotificationSound = () => {
     if (audioRef.current && timerSettings.soundEnabled) {
       audioRef.current.currentTime = 0;
@@ -110,127 +78,88 @@ export default function PomodoroTimer() {
     }
   };
 
-  const handleModeChange = (mode: TimerMode) => {
-    setTimerMode(mode);
-    setIsActive(false);
-    const newTime = timerSettings[mode] * 60;
-    setTimeLeft(newTime);
-    setTotalTime(newTime);
+  const manualTimer = useManualTimer({
+    timerSettings,
+    onTimerDone: playNotificationSound,
+    onStopped: (timeLeft) => {
+      setTimerHistory((prev) => [timeLeft, ...prev.slice(0, 2)]);
+    },
+  });
+
+  // Sequence timer
+  const sequenceTimer = useSequenceTimer(
+    activeSequence,
+    sequenceSettings.totalSequenceTime,
+    timerSettings.soundEnabled ?? true
+  );
+
+  // Sequence mode toggle
+  const toggleSequenceMode = () => {
+    if (!activeSequence) return;
+    setTimerSettings((prev) => ({
+      ...prev,
+      sequenceSettings: {
+        ...(prev.sequenceSettings ?? DEFAULT_SEQUENCE_SETTINGS),
+        sequenceModeEnabled: !isSequenceMode,
+      },
+    }));
+    if (isSequenceMode) {
+      sequenceTimer.reset();
+    } else {
+      manualTimer.stop();
+    }
   };
 
+  // Settings
   const handleSettingsApply = (newSettings: TimerSettings) => {
     setTimerSettings(newSettings);
-    const newTime = newSettings[timerMode] * 60;
-    setTimeLeft(newTime);
-    setTotalTime(newTime);
+    // The manual timer hook will auto-update its times when timerSettings changes
+    // (via useEffect dependency) if the timer is not currently active
   };
 
-  React.useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((time) => {
-          if (time <= 1) {
-            playNotificationSound();
-            setIsActive(false);
-            return 0;
-          }
-          return time - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isActive, timeLeft]);
+  // Derived state
+  const anyTimerActive = isSequenceMode ? sequenceTimer.isActive : manualTimer.isActive;
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-  };
-
-  const handleStop = () => {
-    setIsActive(false);
-    setTimerHistory((prev) => {
-      const newHistory = [timeLeft, ...prev.slice(0, 2)];
-      return newHistory;
-    });
-  };
-
-  const handleReset = () => {
-    setIsActive(false);
-    const newTime = timerSettings[timerMode] * 60;
-    setTimeLeft(newTime);
-    setTotalTime(newTime);
-  };
-
-  const handleRun = () => {
-    setIsActive(true);
-  };
-
-  // Derived booleans for the current active state (sequence or manual)
-  const anyTimerActive = isSequenceMode ? sequenceTimer.isActive : isActive;
+  const timeLeft = isSequenceMode ? sequenceTimer.phaseTimeLeft : manualTimer.timeLeft;
+  const totalTime = isSequenceMode ? sequenceTimer.phaseTotalTime : manualTimer.totalTime;
 
   return (
     <TooltipProvider delayDuration={600}>
       <div className="flex min-h-screen items-center justify-center bg-white dark:bg-zinc-900">
         <div className="flex flex-col items-center gap-8">
-
-          {/* Sequence mode toggle */}
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-zinc-500 dark:text-zinc-400">Sequence</span>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={toggleSequenceMode}
-                  disabled={!activeSequence}
-                  aria-label={isSequenceMode ? "Disable sequence mode" : "Enable sequence mode"}
-                  className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed ${
-                    isSequenceMode ? "bg-indigo-500" : "bg-zinc-300 dark:bg-zinc-600"
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform ${
-                      isSequenceMode ? "translate-x-4" : "translate-x-0"
-                    }`}
-                  />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>
-                  {activeSequence
-                    ? isSequenceMode
-                      ? "Switch to manual mode"
-                      : "Switch to sequence mode"
-                    : "Add a sequence in Settings first"}
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+          {/* Sequence toggle */}
+          <SequenceToggle
+            isEnabled={isSequenceMode}
+            hasActiveSequence={!!activeSequence}
+            onToggle={toggleSequenceMode}
+          />
 
           {/* Mode selector (manual only) */}
           {!isSequenceMode && (
             <ModeSelector
-              timerMode={timerMode}
+              timerMode={manualTimer.timerMode}
               timerSettings={timerSettings}
-              onModeChange={handleModeChange}
+              onModeChange={manualTimer.changeMode}
             />
           )}
 
-          {/* Phase label (sequence mode only) */}
+          {/* Phase label (sequence only) */}
           {isSequenceMode && (
             <div className="text-sm font-medium text-indigo-500">
               {PHASE_LABELS[sequenceTimer.currentPhase]}
             </div>
           )}
 
+          {/* Timer display */}
           <TimerDisplay
-            timeLeft={isSequenceMode ? sequenceTimer.phaseTimeLeft : timeLeft}
-            totalTime={isSequenceMode ? sequenceTimer.phaseTotalTime : totalTime}
-            setTimeLeft={setTimeLeft}
+            timeLeft={timeLeft}
+            totalTime={totalTime}
+            setTimeLeft={() => {}} // no-op in sequence mode (readonly)
             formatTime={formatTime}
             readonly={isSequenceMode}
           />
 
+          {/* Timer history (manual only) */}
           {!isSequenceMode && (
             <TimerHistory
               timerHistory={timerHistory}
@@ -240,80 +169,29 @@ export default function PomodoroTimer() {
           )}
 
           {/* Controls */}
-          <div className="flex gap-4">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-zinc-400 hover:text-zinc-500 dark:text-zinc-400 dark:hover:text-zinc-300"
-                  onClick={isSequenceMode ? sequenceTimer.reset : handleReset}
-                >
-                  <RotateCcw className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Reset timer</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  className="w-24 bg-indigo-500 hover:bg-indigo-600 text-white"
-                  onClick={
-                    isSequenceMode
-                      ? anyTimerActive
-                        ? sequenceTimer.stop
-                        : sequenceTimer.start
-                      : anyTimerActive
-                      ? handleStop
-                      : handleRun
-                  }
-                >
-                  {anyTimerActive ? "Stop" : "Start"}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{anyTimerActive ? "Stop the timer" : "Start the timer"}</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-zinc-400 hover:text-zinc-500 dark:text-zinc-400 dark:hover:text-zinc-300"
-                  onClick={() => setIsSettingsOpen(true)}
-                >
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Open settings</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+          <TimerControls
+            isActive={anyTimerActive}
+            onReset={isSequenceMode ? sequenceTimer.reset : manualTimer.reset}
+            onStartStop={
+              isSequenceMode
+                ? anyTimerActive
+                  ? sequenceTimer.stop
+                  : sequenceTimer.start
+                : anyTimerActive
+                ? manualTimer.stop
+                : manualTimer.start
+            }
+            onSettings={() => setIsSettingsOpen(true)}
+          />
 
-          {/* Active sequence info */}
-          {isSequenceMode && activeSequence && (
-            <div className="flex flex-col items-center gap-1">
-              <p className="text-sm text-zinc-400 dark:text-zinc-500">
-                Sequence #{activeSequenceIndex}:{" "}
-                <span className="text-zinc-600 dark:text-zinc-400">
-                  {activeSequence.pomodoro}m / {activeSequence.shortBreak}m
-                  {activeSequence.longBreak > 0 && ` / ${activeSequence.longBreak}m`}
-                </span>
-              </p>
-              {sequenceSettings.totalSequenceTime > 0 && (
-                <p className="text-lg text-zinc-400 dark:text-zinc-500">
-                  Elapsed:{" "}
-                  <span className="text-green-400 font-semibold">
-                    {formatTime(sequenceTimer.totalElapsedSeconds)}
-                  </span>{" "}
-                  / {sequenceSettings.totalSequenceTime}m
-                </p>
-              )}
-            </div>
+          {/* Sequence info (sequence only) */}
+          {isSequenceMode && activeSequence && activeSequenceIndex && (
+            <SequenceInfo
+              sequence={activeSequence}
+              sequenceIndex={activeSequenceIndex}
+              totalSequenceTime={sequenceSettings.totalSequenceTime}
+              elapsedSeconds={sequenceTimer.totalElapsedSeconds}
+            />
           )}
         </div>
       </div>
