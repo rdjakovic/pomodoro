@@ -216,9 +216,8 @@ export default function Settings({
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium text-zinc-900 dark:text-white">Sequences</h3>
               <Button
-                variant="outline"
                 size="sm"
-                className="text-xs h-7 px-2"
+                className="text-xs h-7 px-2 bg-indigo-500 hover:bg-indigo-600 text-white"
                 onClick={handleAddSequenceClick}
                 disabled={isFormOpen}
               >

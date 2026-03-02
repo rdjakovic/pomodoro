@@ -231,11 +231,13 @@ export default function PomodoroTimer() {
             readonly={isSequenceMode}
           />
 
-          <TimerHistory
-            timerHistory={timerHistory}
-            setTimerHistory={setTimerHistory}
-            formatTime={formatTime}
-          />
+          {!isSequenceMode && (
+            <TimerHistory
+              timerHistory={timerHistory}
+              setTimerHistory={setTimerHistory}
+              formatTime={formatTime}
+            />
+          )}
 
           {/* Controls */}
           <div className="flex gap-4">
@@ -295,7 +297,7 @@ export default function PomodoroTimer() {
           {/* Active sequence info */}
           {isSequenceMode && activeSequence && (
             <div className="flex flex-col items-center gap-1">
-              <p className="text-xs text-zinc-400 dark:text-zinc-500">
+              <p className="text-sm text-zinc-400 dark:text-zinc-500">
                 Sequence #{activeSequenceIndex}:{" "}
                 <span className="text-zinc-600 dark:text-zinc-400">
                   {activeSequence.pomodoro}m / {activeSequence.shortBreak}m
@@ -303,9 +305,9 @@ export default function PomodoroTimer() {
                 </span>
               </p>
               {sequenceSettings.totalSequenceTime > 0 && (
-                <p className="text-xs text-zinc-400 dark:text-zinc-500">
+                <p className="text-lg text-zinc-400 dark:text-zinc-500">
                   Elapsed:{" "}
-                  <span className="text-zinc-600 dark:text-zinc-400">
+                  <span className="text-green-400 font-semibold">
                     {formatTime(sequenceTimer.totalElapsedSeconds)}
                   </span>{" "}
                   / {sequenceSettings.totalSequenceTime}m
