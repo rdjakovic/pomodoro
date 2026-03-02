@@ -12,6 +12,7 @@ interface TimerDisplayProps {
   totalTime: number;
   setTimeLeft: (value: React.SetStateAction<number>) => void;
   formatTime: (seconds: number) => string;
+  readonly?: boolean;
 }
 
 const MINUTES_INC_DEC = 5;
@@ -59,6 +60,7 @@ export function TimerDisplay({
   totalTime,
   setTimeLeft,
   formatTime,
+  readonly = false,
 }: TimerDisplayProps) {
   const progress = ((totalTime - timeLeft) / totalTime) * 100;
 
@@ -81,53 +83,57 @@ export function TimerDisplay({
       />
       <div className="absolute inset-2 flex items-center justify-center rounded-full bg-white dark:bg-zinc-900">
         <div className="flex items-center gap-4">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                className="text-zinc-400 hover:text-zinc-500 dark:text-zinc-400 dark:hover:text-zinc-300 text-2xl font-bold h-8 w-8 p-0"
-                onClick={() =>
-                  setTimeLeft((prev) => {
-                    const adjustment = getTimeAdjustment(prev, false);
-                    return Math.max(1, prev - adjustment);
-                  })
-                }
-              >
-                -
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>
-                Decrease time by {timeLeft > 600 ? MINUTES_INC_DEC : 1} minute
-                {timeLeft > 600 ? "s" : ""}
-              </p>
-            </TooltipContent>
-          </Tooltip>
+          {!readonly && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="text-zinc-400 hover:text-zinc-500 dark:text-zinc-400 dark:hover:text-zinc-300 text-2xl font-bold h-8 w-8 p-0"
+                  onClick={() =>
+                    setTimeLeft((prev) => {
+                      const adjustment = getTimeAdjustment(prev, false);
+                      return Math.max(1, prev - adjustment);
+                    })
+                  }
+                >
+                  -
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  Decrease time by {timeLeft > 600 ? MINUTES_INC_DEC : 1} minute
+                  {timeLeft > 600 ? "s" : ""}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          )}
           <span className="text-5xl font-medium text-zinc-900 dark:text-white">
             {formatTime(timeLeft)}
           </span>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                className="text-zinc-400 hover:text-zinc-500 dark:text-zinc-400 dark:hover:text-zinc-300 text-2xl font-bold h-8 w-8 p-0"
-                onClick={() =>
-                  setTimeLeft((prev) => {
-                    const adjustment = getTimeAdjustment(prev, true);
-                    return Math.min(3600, prev + adjustment);
-                  })
-                }
-              >
-                +
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>
-                Increase time by {timeLeft > 600 ? MINUTES_INC_DEC : 1} minute
-                {timeLeft > 600 ? "s" : ""}
-              </p>
-            </TooltipContent>
-          </Tooltip>
+          {!readonly && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="text-zinc-400 hover:text-zinc-500 dark:text-zinc-400 dark:hover:text-zinc-300 text-2xl font-bold h-8 w-8 p-0"
+                  onClick={() =>
+                    setTimeLeft((prev) => {
+                      const adjustment = getTimeAdjustment(prev, true);
+                      return Math.min(3600, prev + adjustment);
+                    })
+                  }
+                >
+                  +
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  Increase time by {timeLeft > 600 ? MINUTES_INC_DEC : 1} minute
+                  {timeLeft > 600 ? "s" : ""}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          )}
         </div>
       </div>
     </div>
